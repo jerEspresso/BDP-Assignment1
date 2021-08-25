@@ -21,12 +21,9 @@ public class Task3Reducer extends Reducer<Text, IntWritable, Text, IntWritable> 
 		Task1ReducerLogger.setLevel(Level.DEBUG);
 		Task1ReducerLogger.debug("The reducer task of Chenyu Xiao, s3829221");
 		
-		Task1ReducerLogger.debug("Key input: " + keyIn.toString());
-		
 		// Aggregate values of the same key
 		for (IntWritable value : valuesIn) {
 			valueOut += value.get();
-			Task1ReducerLogger.debug("Value input: " + value);
 		}
 		
 		context.write(keyIn, new IntWritable(valueOut));

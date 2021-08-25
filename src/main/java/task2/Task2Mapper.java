@@ -1,6 +1,8 @@
 package task2;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.io.IntWritable;
@@ -16,6 +18,7 @@ public class Task2Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 	final private static IntWritable ONE = new IntWritable(1);
 	private Text word = new Text();
 	StringTokenizer tokenizer;
+	private Map<Text, IntWritable> associativeArray;
 
 	@Override
 	protected void map(LongWritable offset, Text valueIn, Context context) throws IOException, InterruptedException {
@@ -23,25 +26,26 @@ public class Task2Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 		Task1MapperLogger.setLevel(Level.DEBUG);
 		Task1MapperLogger.debug("The mapper task of Chenyu Xiao, s3829221");
 		
+		// Initiate associative array
+		associativeArray = new HashMap<>();
+
 		// Split document into tokens using default delimiters
 		tokenizer = new StringTokenizer(valueIn.toString());
-		
+
+		// Update associative array
 		while (tokenizer.hasMoreTokens()) {
-			String token = tokenizer.nextToken();
-			// Classify words based on length
-			if (token.length() >= 1 && token.length() <= 4) {
-				word.set("short");
-			} else if (token.length() >= 5 && token.length() <= 7) {
-				word.set("medium");
-			} else if (token.length() >= 8 && token.length() <= 10) {
-				word.set("long");
+			Text token = new Text(tokenizer.nextToken());
+			if (associativeArray.containsKey(token)) {
+				int count = associativeArray.get(token).get() + 1;
+				associativeArray.put(token, new IntWritable(count));
 			} else {
-				word.set("extra-long");
+				associativeArray.put(token, ONE);
 			}
-			Task1MapperLogger.debug(token + " is classified into " + word.toString());
-			
-			// Emit intermediate key-value pair
-			context.write(word, ONE);
+		}
+
+		// Emit intermediate key-value pairs
+		for (Map.Entry<Text, IntWritable> entry : associativeArray.entrySet()) {
+			context.write(entry.getKey(), entry.getValue());
 		}
 	}
 }

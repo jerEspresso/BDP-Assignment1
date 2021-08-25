@@ -14,13 +14,11 @@ public class Task2 {
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "Task 1");
+		Job job = Job.getInstance(conf, "Task 2");
 		
 		job.setJarByClass(Task2.class);
 		job.setMapperClass(Task2Mapper.class);
-		job.setPartitionerClass(Task2Partitioner.class);
 		job.setReducerClass(Task2Reducer.class);
-		job.setNumReduceTasks(2);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		
@@ -29,5 +27,4 @@ public class Task2 {
 		
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
 	}
-
 }
